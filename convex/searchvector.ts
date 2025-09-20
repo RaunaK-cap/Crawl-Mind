@@ -23,6 +23,7 @@ export const fetchResults = internalQuery({
 
 export const similar_vectors = action({
     args: {
+        UserID:v.string(),
       user_query_embeddings : v.array(v.number())
     },
     handler: async (ctx, args) => {
@@ -32,12 +33,14 @@ export const similar_vectors = action({
       const results = await ctx.vectorSearch("Embedding_vectors", "by_embedding", {
         vector: args.user_query_embeddings,
         limit: 6,
+        filter: q => q.eq("UserID", args.UserID),
         
       });
       const Docs: Array<Doc<"Embedding_vectors">> = await ctx.runQuery(
         internal.searchvector.fetchResults,
         { ids: results.map((result) => result._id) },
       );
+      
       return Docs;
     },
   });
